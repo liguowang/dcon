@@ -1,0 +1,11 @@
+include MANIFEST.in
+include README.md
+include LISCENSE
+include PKG-INFO 
+
+include distribute_setup.py
+recursive-include lib *.pyx
+recursive-include lib *.pxd
+recursive-include lib *.py
+include bin/*
+include scripts/*

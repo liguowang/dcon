@@ -1,0 +1,5 @@
+numpy>=1.13.3
+scipy
+pysam>=0.13
+sklearn
+pyBigWig
