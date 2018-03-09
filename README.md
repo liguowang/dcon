@@ -9,3 +9,20 @@ DNA harbors clinically significant variants.
 **Dcon** is a program to detect and quantify sample-to-sample DNA contaminations using the
 skewed (or shifted) distribution of Variant allele frequency (VAF, VAF refers to the
 fraction of sequencing reads overlapping a genomic coordinate of a DNA variant such as SNP).  
+
+## Getting Started
+
+### Prerequisites
+
+### Installing
+
+## Running the tests
+
+## Deployment
+
+## Contributing
+
+## Authors
+
+## License
+This project is licensed under the GPL License - see the [LICENSE](LICENSE) file for details
