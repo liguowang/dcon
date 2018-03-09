@@ -12,6 +12,11 @@ fraction of sequencing reads overlapping a genomic coordinate of a DNA variant s
 
 ## Getting Started
 
+### How Dcon works
+
+![workflow](https://github.com/liguowang/dcon/blob/master/img/worflow.png?raw=true)
+
+
 ### Prerequisites
 Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and these python packages. 
 
