@@ -61,7 +61,8 @@ def read_bed(bam_file, bed_file, skipxy):
 			start = int(f[1])
 			end = int(f[2])
 		except ValueError:
-			continue
+			print >>sys.stderr, "Error in line %s, not a BED file" % line
+			sys.exit(0)
 		
 		start = max(start,0)
 		end = min(end, chrom_infor[chrom])
