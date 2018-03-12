@@ -30,8 +30,21 @@ Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and the
 
 ### Installing
 
-1. Following instructions [here](https://pip.pypa.io/en/stable/installing/) to install **pip**. Please note: **pip** is already installed if you're using Python 2 >=2.7.9 or Python 3 >=3.4 binaries downloaded from [python.org](https://www.python.org/), but you'll need to upgrade **pip**. 
-2. Use `pip install Dcon` to install.
+Following instructions [here](https://pip.pypa.io/en/stable/installing/) to install **pip**. Please note: **pip** is already installed if you're using Python 2 >=2.7.9 or Python 3 >=3.4 binaries downloaded from [python.org](https://www.python.org/), but you'll need to upgrade **pip**. 
+
+Users have three ways to install Dcon:
+
+1. Install Dcon from pypi:
+   1. Open a terminal and type command: ```pip install Dcon```
+2. Install Dcon from local directory
+  1. Download Dcon directly from: [this link](https://github.com/liguowang/dcon/archive/master.zip)
+  2. Go to the directory where **dcon-master.zip** was saved.
+  3. Open a terminal and type command:`pip install dcon-master.zip`
+
+3. Install Dcon from local directory
+  1. Clone Dcon. Open a terminal and type command: `git clone https://github.com/liguowang/dcon.git`
+  2. Type command: `cd ./dcon`
+  3. Type command: `pip install .` 
 
 ### General usage
 
@@ -135,6 +148,9 @@ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 
 ## Performance
 
+In below figure, each boxplot is generated from 100 BAM files. And each BAM file is purposely mixed from two different samples at pre-defined percentages (10%, 20%, 30%, 40%, 50%).
+For example, in the leftmost boxplot(green), 10% of reads were from one sample, and 90% of reads were from another sample.
+ 
 ![](https://github.com/liguowang/dcon/blob/master/img/strip_chart.png?raw=true)
 
 ## Contributing Authors
