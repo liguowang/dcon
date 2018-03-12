@@ -35,7 +35,8 @@ Following instructions [here](https://pip.pypa.io/en/stable/installing/) to inst
 Users have three ways to install Dcon:
 
 1. Install Dcon from pypi:
-   1. Open a terminal and type command: ```pip install Dcon```
+  1. Open a terminal and type command: ```pip install Dcon```
+
 2. Install Dcon from local directory
   1. Download Dcon directly from: [this link](https://github.com/liguowang/dcon/archive/master.zip)
   2. Go to the directory where **dcon-master.zip** was saved.
