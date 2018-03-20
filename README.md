@@ -459,7 +459,7 @@ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 
 **Speed**:
 
-When VCF (9265 candidate SNPs within captured regions) file was provided , Dcon took **6 minutes and 5 seconds** to estimate DNA contamination from a 177 Mb BAM file containing 2 million alignments.
+When VCF (9265 candidate SNPs within captured regions) file was provided , Dcon took **6 minutes and 5 seconds** to estimate DNA contamination from a 177 Mb BAM file containing 2 million alignments. Using multiple threads (-p) will increase speed significantly. 
 
 ## Performance
 
