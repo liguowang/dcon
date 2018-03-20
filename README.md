@@ -10,7 +10,7 @@ DNA harbors clinically significant variants.
 skewed (or shifted) distribution of variant allele frequency (VAF, VAF refers to the
 fraction of sequencing reads overlapping a genomic coordinate of a DNA variant such as SNP).
 
-**Unlike other tools, Dcon does NOT require any prior knowledge such as "genotype" and/or "allele frequencies in human population" calculated from 1000 Genome project. Dcon works on single BAM file and does not require tumor-normal pairs. Therefore, Dcon is also able to detect contamination from DNA sequencing data generated from non-human samples, where allele frequency and genotype are generally not available.**
+**Unlike other tools, Dcon does NOT require any prior knowledge such as "genotype" and/or "allele frequencies in human population" calculated from 1000 Genome project. Dcon works on single BAM file and does not require tumor-normal pairs. Therefore, Dcon is also able to detect contamination from DNA sequencing data generated from non-human samples, where allele frequencies and genotype are generally not available.**
 
 ## Getting Started
 
@@ -20,7 +20,7 @@ fraction of sequencing reads overlapping a genomic coordinate of a DNA variant s
 
 
 ### Prerequisites
-Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and these python packages. 
+Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and these python packages (These packages will be automatically installed, please see instructions below). 
 
 1. [**numpy**](http://www.numpy.org/)
 2. [**scipy**](https://www.scipy.org/)
