@@ -476,7 +476,7 @@ Dcon will generate 3 output files
   * R script to generate **prefix.overall_contamination.pdf**
   
 
-
+**Example of prefix.SNP.tsv**
 ```
 $ head P05.SNP.tsv
 
@@ -491,7 +491,10 @@ $ head P05.SNP.tsv
 3	128206618	C	36	A	7
 3	136056033	G	671	A	5
 ...
+```
+**Example of prefix.PI.tsv**  
 
+```
 $ head P05.PI.tsv
 
 Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Contamination_p
@@ -507,7 +510,7 @@ Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	
 ...
 
 ```  
-
+**Example of prefix.overall_contamination.pdf**  
 ![workflow](https://github.com/liguowang/dcon/blob/master/img/P05_overall_contamination.png?raw=true)
 
 
