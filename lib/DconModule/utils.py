@@ -1,14 +1,13 @@
 from time import strftime
 import os,sys
-import string
 import collections
 import pysam
 import ireader
 from numpy import mean,std
 from scipy import stats
+from scipy.stats import binom
 import subprocess
-import pyBigWig
-
+import operator
 
 
 def get_reference_name(bamfile):
@@ -152,138 +151,101 @@ def filter_SNPs(infile, bigwig_file = None, cutoff = 0):
 		
 		#Minor variant allele fraction (or percentage)
 		MVAF = min(base1_count, base2_count)/(base1_count + base2_count)
-		# Minor variant allele fraction/Major variant allele fraction ratio. 
-		MVAR = min(base1_count, base2_count)/max(base1_count, base2_count)	
+		
 		if MVAF < 0.01:
 			continue
+		# Minor variant allele fraction/Major variant allele fraction ratio. 
+		MVAR = min(base1_count, base2_count)/max(base1_count, base2_count)	
+
 		ratios.append(MVAR)
 		SNPs.append('\t'.join(f[0:6]))
 	return(SNPs, ratios)
 
 #=======	
-def estimate_overall_pi(infile, outfile, size_cut):
+			
+def estimate_overall_pi(infile):
 	'''
-	estimate overall contaminant percentage
-	size_cut:
-		* when the number of usable SNP is less then size_cut. Use their mean to estimate
-		* when the number of usable SNP is larger then size_cut. Use mode 
+	Estimate the overall contamination percentage using maximum likelihood estimation (MLE)
 	'''
-	all = []
-	homo = []
-	hete = []
-	container = collections.defaultdict(list)
-	
-	dist_cut = 30
-	
-	with open(infile,'r') as L:
-		for line in L:
-			line = line.strip()
-			if line.startswith('Chrom'):continue
-			f = line.split()
-			coord = f[0] + ':' + f[1]
-			
-			chrom = f[0]
-			end = int(f[1])
-			start = end -1 
-			
-			if chrom not in container:
-				container[chrom].append(start)
-			else:
-				if min([abs(i - start) for i in container[chrom]]) > dist_cut: #at least 30 nt away
-					container[chrom].append(start)
-				else:
-					continue
-			
-			
-			label = f[9]
-			distance = float(f[10])
-			pi = float(f[11])
-			if pi < 0.01:
-				continue
-			all.append((distance, pi))
-			if label == 'Het':
-				hete.append((distance, pi))
-			elif label == 'Hom':
-				homo.append((distance, pi))
-			
-	all_sorted = [i[1] for i in sorted(all,key=lambda x:x[0])]
-	homo_sorted = [i[1] for i in sorted(homo,key=lambda x:x[0])]
-	hete_sorted = [i[1] for i in sorted(hete,key=lambda x:x[0])]
-	
-	
-	if len(all_sorted) == 0:
-		 print  "\n Cannot find SNPs to estimated contamination level" 
-		 sys.exit(0)
-	
-	# when the number of usable SNP is less than 3. Use their mean to estimate	
-	elif (len(all_sorted) > 0) and (len(all_sorted) < 3):
-		pi_mean = mean(all_sorted)
-		print  "\nEstimated contamination level (All SNP):\t%.3f" % (pi_mean)
-		sys.exit(0)
+	candidate_PIs = [i/1000.0 for i in range(0,501)]
+	snp_hom = []
+	snp_het = []
+	for l in open(infile,'r'):
+		l = l.strip()
+		if l.startswith('Chrom'):continue
+		f = l.split()
+		allele_1_count = int(f[3])
+		allele_2_count = int(f[5])
+		if allele_1_count < allele_2_count:
+			(allele_1_count, allele_2_count) = (allele_2_count,allele_1_count)
 		
-	# when the number of usable SNP is larger than 3. Use mode 
-	elif len(all_sorted) >= 3:
-	
-		ROUT = open(outfile + '.dcon.R','w')
-		
-		print >>ROUT, "pdf(\"%s\",width=6,height=8)" % (outfile + '.dcon.pdf')
-		print >>ROUT, 'par(mfrow=c(2,2))'
-	
-		print >>ROUT, "ALL_SNP_PI <- c(%s)" % ','.join([str(i*100.0) for i in all_sorted])
-		print >>ROUT, "ALL_D <- density(ALL_SNP_PI[1:%d],na.rm=T)" % size_cut
-		print >>ROUT, "m1 <- ALL_D$x[which.max(ALL_D$y)]"
-		print >>ROUT, "plot(ALL_D,xlab='Contamination percentage',col='blue',main=paste(\"ALL SNP, Estimated = \", round(m1,2), \"%\"))"
-		print >>ROUT, "abline(v=m1,col='red',lty='dashed')"
-		
-		if len(homo_sorted) >= 3:
-			print >>ROUT, "\n"
-			print >>ROUT, "HOMO_SNP_PI <- c(%s)" % ','.join([str(i*100.0) for i in homo_sorted])
-			print >>ROUT, "HOMO_D <- density(HOMO_SNP_PI[1:%d],na.rm=T)" % size_cut
-			print >>ROUT, "m2 <- HOMO_D$x[which.max(HOMO_D$y)]"
-			print >>ROUT, "plot(HOMO_D,xlab='Contamination percentage',col='blue',main=paste(\"HOMO SNP, Estimated = \", round(m2,2), \"%\"))"
-			print >>ROUT, "abline(v=m2,col='red',lty='dashed')"
-		
-		if len(hete_sorted) >= 3:
-			print >>ROUT, "\n"
-			print >>ROUT, "HETE_SNP_PI <- c(%s)" % ','.join([str(i*100.0) for i in hete_sorted])
-			print >>ROUT, "HETE_D <- density(HETE_SNP_PI[1:%d],na.rm=T)" % size_cut
-			print >>ROUT, "m3 <- HETE_D$x[which.max(HETE_D$y)]"
-			print >>ROUT, "plot(HETE_D,xlab='Contamination percentage',col='blue',main=paste(\"HETE SNP, Estimated = \", round(m3,2), \"%\"))"
-			print >>ROUT, "abline(v=m3,col='red',lty='dashed')"
-		
-		
-		print >>ROUT, 'dev.off()'
-		
-		if len(all_sorted) >= 3:
-			print >>ROUT, "cat('Estimated contamination level (All SNPs): ', round(m1/100.0, 4), '\\n', sep=' ')"
-			#print >>ROUT, 'print ("\n")'
-		elif len(all_sorted) >0:
-			print >>ROUT, "cat('Estimated contamination level (All SNPs): ', round(%s,4), '\\n', sep=' ')" % mean(all_sorted)
-			#print >>ROUT, 'print ("\n")'
+		if f[9] == 'Het':
+			continue
+			#snp_het.append([allele_1_count + allele_2_count, allele_2_count, 'Het']) #n,k
+		elif f[9] == 'Hom':
+			snp_hom.append([allele_1_count + allele_2_count, allele_2_count, 'Hom']) #n,k
 		else:
-			print >>ROUT, "cat('Estimated contamination level (ALL SNPs): unknown', '\\n', sep=' ')"
-			#print >>ROUT, 'print ("\n")'
+			continue
+	
+	#key is pi, value is the product of pmfs across all snps
+	
+	
+	# hom SNPs
+	prob = -float("inf")
+	pi_of_max_prob1 = 0
+	for pi in candidate_PIs:
+		# Homozygous SNP contaminated by homozygous SNP
+		#p1 = pi	
+		# Homozygous SNP contaminated by heterozygous SNP
+		p2 = pi/2.0
 		
-		if len(homo_sorted) >= 3:
-			print >>ROUT, "cat('Estimated contamination level (HOMO SNPs only): ', round(m2/100.0, 4),'\\n', sep=' ')"
-		elif len(homo_sorted) > 0:
-			print >>ROUT, "cat('Estimated contamination level (HOMO SNPs): ', round(%s,4), '\\n', sep=' ')" % mean(homo_sorted)
-		else:
-			print >>ROUT, "cat('Estimated contamination level (HOMO SNPs): unknown', '\\n', sep=' ')"
-		
-		if len(hete_sorted) >= 3:
-			print >>ROUT, "cat('Estimated contamination level (HETE SNPs only): ', round(m3/100.0, 4),'\\n', sep=' ')"
-		elif len(hete_sorted) > 0 :
-			print >>ROUT, "cat('Estimated contamination level (HETE SNPs only): ', round(%s,4), '\\n', sep=' ')" % mean(hete_sorted)
-		else:
-			print >>ROUT, "cat('Estimated contamination level (HETE SNPs): unknown', '\\n', sep=' ')"
-		ROUT.close()
-		
-		
-		try:
-			subprocess.call('Rscript ' + outfile + '.dcon.R', shell=True)
-		except:
-			print >>sys.stderr, 'Cannot generate pdf file from ' + '"' + outfile + '.dcon.R' + '". ' 
-			pass
+		joint_prob = 0
+		for n,k,t in snp_hom:
+			#pmf_1 = binom.logpmf(k,n,p1)
+			pmf_2 = binom.logpmf(k,n,p2)
+			#joint_prob += max(pmf_1, pmf_2)
+			joint_prob += pmf_2
 			
-				
+		if joint_prob > prob:
+			prob = joint_prob
+			pi_of_max_prob1 = pi
+	
+	
+	return pi_of_max_prob1
+	#print >>sys.stderr, "Contamination estimated from Homozygous SNPs: %f" % 	pi_of_max_prob1		
+	
+	"""
+	# het SNPs
+	prob = -float("inf")
+	pi_of_max_prob2 = 0	
+	for pi in candidate_PIs:
+		p = (1.0 - pi)/2.0
+		joint_prob = 0
+		for n,k,t in snp_het:
+			joint_prob += binom.logpmf(k,n,p)
+		
+		if joint_prob > prob:
+			prob = joint_prob
+			pi_of_max_prob2 = pi
+	#print >>sys.stderr, "Contamination estimated from Heterozygous SNPs: %f" % 	pi_of_max_prob2		
+	
+	# all SNPs
+	prob = -float("inf")
+	pi_of_max_prob3 = 0
+	for pi in candidate_PIs:
+		joint_prob = 0
+		for n,k,t in (snp_hom + snp_het):
+			if t == 'Hom':
+				p1 = pi	
+				p2 = pi/2.0
+				joint_prob += max(binom.logpmf(k,n,p1), binom.logpmf(k,n,p2))
+			elif t == 'Het':
+				p = (1.0 - pi)/2.0
+				joint_prob += binom.logpmf(k,n,p)
+		if joint_prob > prob:
+			prob = joint_prob
+			pi_of_max_prob3 = pi
+	
+	#print >>sys.stderr, "Contamination estimated from All SNPs: %f" % 	pi_of_max_prob3	
+	"""
+	#print str(infile) + '\t' + str(pi_of_max_prob1)

@@ -13,7 +13,7 @@ if sys.version_info[0] != 2 or sys.version_info[1] < 7:
 
 def main():
 	setup(  name = "Dcon",
-			version = "0.1.4",
+			version = "0.1.5",
 			py_modules = [ 'psyco_full' ],
 			packages = find_packages( 'lib' ),
 			package_dir = { '': 'lib' },
@@ -25,7 +25,7 @@ def main():
 			author = "Liguo Wang",
 			author_email ="wangliguo78@gmail.com",
 			platforms = ['Linux','MacOS'],
-			install_requires = ['numpy>=1.13.3','scipy','pysam>=0.13','sklearn','pyBigWig'], 
+			install_requires = ['numpy>=1.13.3','scipy','pysam>=0.13','sklearn'], 
 			description = " A program to assess DNA contamination level",
 			url = "",
 			zip_safe = False,
