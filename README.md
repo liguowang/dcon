@@ -10,7 +10,7 @@ DNA harbors clinically significant variants.
 skewed (or shifted) distribution of variant allele frequency (VAF, VAF refers to the
 fraction of sequencing reads overlapping a genomic coordinate of a DNA variant such as SNP).
 
-**Unlike other tools, Dcon does NOT require any prior knowledge such as "genotype" and/or "allele frequencies" calculated from 1000 Genome project. Dcon works on single BAM file and does not require tumor-normal pairs.**
+**Unlike other tools, Dcon does NOT require any prior knowledge such as "genotype" and/or "allele frequencies in human population" calculated from 1000 Genome project. Dcon works on single BAM file and does not require tumor-normal pairs. Therefore, Dcon is also able to detect contamination from DNA sequencing data generated from non-human samples, where allele frequency and genotype are generally not available.**
 
 ## Getting Started
 
@@ -40,11 +40,6 @@ Users have three ways to install Dcon:
     * Download Dcon directly from: [this link](https://github.com/liguowang/dcon/archive/0.1.5.zip)
     * Go to the directory where **dcon-version.zip** was saved (for example, dcon-0.1.5.zip).
     * Open a terminal and type command:`pip install dcon-0.1.5.zip`
-
-3. Install Dcon from local directory
-    * Clone Dcon. Open a terminal and type command: `git clone https://github.com/liguowang/dcon.git`
-    * Type command: `cd ./dcon`
-    * Type command: `pip install .` 
 
 ### General usage
 
