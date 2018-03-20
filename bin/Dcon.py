@@ -184,7 +184,7 @@ def main():
 	called_SNPs = manager.list()	
 	
 	if options.vcf_file:
-		printlog(['Counting reads from \"%s\"' % options.bam_file])
+		printlog(['Calculate variant allele frequencies from \"%s\"' % options.bam_file])
 		
 	for chunk in chunks(l = all_regions, n = options.processor_num):
 		jobs = []

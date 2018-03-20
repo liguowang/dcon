@@ -416,7 +416,7 @@ $ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P45.bam -o  P4
 @ 2018-03-19 22:43:58: Writing to P45.PI.tsv ...
 @ 2018-03-19 22:43:58: Estimating overall contamination using maximum likelihood estimation (MLE) ...
 
-	Overall contamination: 0.455
+	Overall contamination: 0.435
 
 
 #####################################
@@ -447,7 +447,7 @@ $ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P50.bam -o  P5
 @ 2018-03-19 22:59:12: Writing to P50.PI.tsv ...
 @ 2018-03-19 22:59:12: Estimating overall contamination using maximum likelihood estimation (MLE) ...
 
-	Overall contamination: 0.448
+	Overall contamination: 0.428
 				
 ```
 
@@ -459,8 +459,7 @@ Intel(R) Core(TM) i7-3720QM CPU @ 2.60GHz
 
 **Speed**:
 
-1. When VCF (candidate SNPs within captured regions) file was provided , Dcon took **1 minutes and 51 seconds** to estimate DNA contamination from a 318Mb BAM file containing 4,436,375 alignments.
-2. When BED (i.e. captured regions) file was provided, Dcon took **32 minutes and 2 seconds** to call variants and estimate DNA contamination from the same BAM file mentioned above.
+When VCF (9265 candidate SNPs within captured regions) file was provided , Dcon took **6 minutes and 5 seconds** to estimate DNA contamination from a 177 Mb BAM file containing 2 million alignments.
 
 ## Performance
 
