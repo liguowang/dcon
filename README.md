@@ -474,6 +474,7 @@ Dcon will generate 3 output files
 
 3. **prefix.overall_contamination.R**
   * R script to generate **prefix.overall_contamination.pdf**
+  * Contamination percentage (0% - 50%) is indicated by the red arrow.
   
 
 **Example of prefix.SNP.tsv**
@@ -512,7 +513,7 @@ Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	
 ```  
 **Example of prefix.overall_contamination.pdf**  
 ![workflow](https://github.com/liguowang/dcon/blob/master/img/P05_overall_contamination.png?raw=true)
-
+Contamination percentage (0% - 50%) is indicated by the red arrow.
 
 ## speed benchmark
 
