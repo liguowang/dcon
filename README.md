@@ -31,7 +31,7 @@ Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and the
 
 Following instructions [here](https://pip.pypa.io/en/stable/installing/) to install **pip**. Please note: **pip** is already installed if you're using Python 2 >=2.7.9 or Python 3 >=3.4 binaries downloaded from [python.org](https://www.python.org/), but you'll need to upgrade **pip**. 
 
-Users have three ways to install Dcon:
+Users have two ways to install Dcon:
 
 1. Install Dcon from [pypi](https://pypi.python.org/pypi):
     * Open a terminal and type command: ```pip install Dcon```
@@ -115,18 +115,20 @@ Targeted-capture sequencing data of 10 chronic myelomonocytic leukemia patients 
 
 A total of 45 synthetic datasets were created by mixing the above 10 original datasets in pairwise at 5%, 10%, ..., 45%, 50%. Mixed reads were then aligned to human genome (hg19) using BWA. Below are mixed BAM files from "SRR6756025" and "SRR6756028":
 
-| File Name                   |  Mix percentage  |   Reads from SRR6756025 |  Reads from SRR6756028  |  Total Reads  | Download Links                                                                                                                                      |
-|:----------------------------|:----------------:|:-----------------------:|:-----------------------:|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|
-|SRR6756025_SRR6756028_P05.bam|      5%          |1,900,360                |100,122                  |2,000,482      | [bam](https://drive.google.com/open?id=1ueMZYaw927Wa1V-QJ2ir-L-59nhVezdr), [bai](https://drive.google.com/open?id=1uQZ_ZMG9JzRb7bcKFRV0JtAYeUGAMzHK)|
-|SRR6756025_SRR6756028_P10.bam|      10%         |1,800,190                |199,734                  |1,999,924      | [bam](https://drive.google.com/open?id=1r1OHZ04SQnGygyslEkRurCk_2jTv7CVR), [bai](https://drive.google.com/open?id=1fV7TGq9zb0xQ981F0ZI_45GYcgHTmyrp)|
-|SRR6756025_SRR6756028_P15.bam|      15%         |1,700,516                |298,978                  |1,999,494      | [bam](https://drive.google.com/open?id=1WMkmwRlA6OEYq_fOn8jsBa8sGoKVwDKv), [bai](https://drive.google.com/open?id=1P91gOw31QcBl-wGqNiLFezuxmDjlg3Sw)|
-|SRR6756025_SRR6756028_P20.bam|      20%         |1,600,992                |399,158                  |2,000,150      | [bam](https://drive.google.com/open?id=16pUsoZ97kw_nw8p4xA65Pf9NJ_h-b-Mq), [bai](https://drive.google.com/open?id=1wHolvdxHa3srDjPssOaABf1X-jUVRSfJ)|
-|SRR6756025_SRR6756028_P25.bam|      25%         |1,501,164                |499,074                  |2,000,238      | [bam](https://drive.google.com/open?id=1IptltVhzRO7UxdkGqLqJgkLPFrvJFvFI), [bai](https://drive.google.com/open?id=13hYujxRbD3z6rVRn5gGcU6FzrjC8r2e1)|
-|SRR6756025_SRR6756028_P30.bam|      30%         |1,401,194                |600,108                  |2,001,302      | [bam](https://drive.google.com/open?id=1wgGSXZacF4GHOylOEY9lYAOJvGluE4vm), [bai](https://drive.google.com/open?id=1cNhU1l80YDrkgDOQ0pbQI-eTEmF3y2yg)|
-|SRR6756025_SRR6756028_P35.bam|      35%         |1,300,672                |700,448                  |2,001,120      | [bam](https://drive.google.com/open?id=1eJysW6twpyykkKRcA0vD4Y-2--yJmPVP), [bai](https://drive.google.com/open?id=1FxLrk6PVrGWV1HUGiQIKEt_Vy12fB9vl)|
-|SRR6756025_SRR6756028_P40.bam|      40%         |1,200,038                |799,920                  |1,999,958      | [bam](https://drive.google.com/open?id=1nTbFVqPJHQEZDo54lB4dY0F9RV-azxrR), [bai](https://drive.google.com/open?id=1ACX5f_xprOV-x2iIcAd-shEYzLieL6Wr)|
-|SRR6756025_SRR6756028_P45.bam|      45%         |1,099,964                |899,424                  |1,999,388      | [bam](https://drive.google.com/open?id=1rIx5XpVx5epf58QAIm73ZcJ-D4XKUyIc), [bai](https://drive.google.com/open?id=1s8acjTvUi-ZSZtwCdwDQJT2qgJceQ5at)|
-|SRR6756025_SRR6756028_P50.bam|      50%         | 999,998                 |998,942                  |1,998,940      | [bam](https://drive.google.com/open?id=1ejAisBka-CX7J_3sJz5lJbGJiISd3hMy), [bai](https://drive.google.com/open?id=15roTtddOUjC64zfcGJD3tQVDMSvkqzeL)|
+| File Name                   |  Mix percentage  |   Reads from SRR6756025 |  Reads from SRR6756028  |  Total Reads  | Download Links                                                                                                                                      |  MD5Sum of BAM file            |
+|:----------------------------|:----------------:|:-----------------------:|:-----------------------:|:-------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------:|
+|SRR6756025_SRR6756028_P05.bam|      5%          |1,900,360                |100,122                  |2,000,482      | [bam](https://drive.google.com/open?id=1ueMZYaw927Wa1V-QJ2ir-L-59nhVezdr), [bai](https://drive.google.com/open?id=1uQZ_ZMG9JzRb7bcKFRV0JtAYeUGAMzHK)|0fa86559117ee9f3070986593ff3b667|
+|SRR6756025_SRR6756028_P10.bam|      10%         |1,800,190                |199,734                  |1,999,924      | [bam](https://drive.google.com/open?id=1r1OHZ04SQnGygyslEkRurCk_2jTv7CVR), [bai](https://drive.google.com/open?id=1fV7TGq9zb0xQ981F0ZI_45GYcgHTmyrp)|3e8705858900060836eccf984e4fe778|
+|SRR6756025_SRR6756028_P15.bam|      15%         |1,700,516                |298,978                  |1,999,494      | [bam](https://drive.google.com/open?id=1WMkmwRlA6OEYq_fOn8jsBa8sGoKVwDKv), [bai](https://drive.google.com/open?id=1P91gOw31QcBl-wGqNiLFezuxmDjlg3Sw)|9ea836d52e7b78ec2e21d7fe8a547bdf|
+|SRR6756025_SRR6756028_P20.bam|      20%         |1,600,992                |399,158                  |2,000,150      | [bam](https://drive.google.com/open?id=16pUsoZ97kw_nw8p4xA65Pf9NJ_h-b-Mq), [bai](https://drive.google.com/open?id=1wHolvdxHa3srDjPssOaABf1X-jUVRSfJ)|f2ed2b1cfbf89b6331f2a86065248767|
+|SRR6756025_SRR6756028_P25.bam|      25%         |1,501,164                |499,074                  |2,000,238      | [bam](https://drive.google.com/open?id=1IptltVhzRO7UxdkGqLqJgkLPFrvJFvFI), [bai](https://drive.google.com/open?id=13hYujxRbD3z6rVRn5gGcU6FzrjC8r2e1)|3f838b28fa8898d12c6313de82473694|
+|SRR6756025_SRR6756028_P30.bam|      30%         |1,401,194                |600,108                  |2,001,302      | [bam](https://drive.google.com/open?id=1wgGSXZacF4GHOylOEY9lYAOJvGluE4vm), [bai](https://drive.google.com/open?id=1cNhU1l80YDrkgDOQ0pbQI-eTEmF3y2yg)|2b9392ef983e1e789b5d818c9f604b19|
+|SRR6756025_SRR6756028_P35.bam|      35%         |1,300,672                |700,448                  |2,001,120      | [bam](https://drive.google.com/open?id=1eJysW6twpyykkKRcA0vD4Y-2--yJmPVP), [bai](https://drive.google.com/open?id=1FxLrk6PVrGWV1HUGiQIKEt_Vy12fB9vl)|1d3a0fe4990bfa4da599df44d8f4c25a|
+|SRR6756025_SRR6756028_P40.bam|      40%         |1,200,038                |799,920                  |1,999,958      | [bam](https://drive.google.com/open?id=1nTbFVqPJHQEZDo54lB4dY0F9RV-azxrR), [bai](https://drive.google.com/open?id=1ACX5f_xprOV-x2iIcAd-shEYzLieL6Wr)|e52bbeec296c2f933019a49e59639d46|
+|SRR6756025_SRR6756028_P45.bam|      45%         |1,099,964                |899,424                  |1,999,388      | [bam](https://drive.google.com/open?id=1rIx5XpVx5epf58QAIm73ZcJ-D4XKUyIc), [bai](https://drive.google.com/open?id=1s8acjTvUi-ZSZtwCdwDQJT2qgJceQ5at)|72c8e3fca913735d1270875a3be59b17|
+|SRR6756025_SRR6756028_P50.bam|      50%         | 999,998                 |998,942                  |1,998,940      | [bam](https://drive.google.com/open?id=1ejAisBka-CX7J_3sJz5lJbGJiISd3hMy), [bai](https://drive.google.com/open?id=15roTtddOUjC64zfcGJD3tQVDMSvkqzeL)|75562d5c2ae4db37d2c97fe09c368222|
+
+
 ## Running test
 
 1. Download BAM files, BAM index files from the table above.
@@ -445,6 +447,69 @@ $ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P50.bam -o  P5
 	Overall contamination: 0.428
 				
 ```
+
+## Output files
+
+Dcon will generate 3 output files
+1. **prefix.SNP.tsv**
+  * column-1: Chromosome ID
+  * column-2: SNP Position 
+  * column-3: Allele 1
+  * column-4: Number of reads supporting Allele 1
+  * column-5: Allele 2
+  * column-6: Number of reads supporting Allele 1
+
+2. **prefix.PI.tsv**  
+  * column-1: Chromosome ID
+  * column-2: SNP Position 
+  * column-3: Allele 1
+  * column-4: Number of reads supporting Allele 1
+  * column-5: Allele 2
+  * column-6: Number of reads supporting Allele 2
+  * column-7: Ratio. {Number of reads supporting less frequent allele}/{Total reads covering this SNP}  
+  * column-8: Probability of homozygous SNP
+  * column-9: Probability of heterozygous SNP
+  * column-10: Label. "Hom" or "Het"
+  * column-11: Contamination percentage calculated from this individual SNP.
+
+3. **prefix.overall_contamination.R**
+  * R script to generate **prefix.overall_contamination.pdf**
+  
+
+
+```
+$ head P05.SNP.tsv
+
+1	36937059	A	126	G	117
+1	36937065	A	127	G	124
+2	25469502	T	116	C	95
+3	105439026	G	477	A	11
+3	128199380	G	220	A	14
+3	128199662	G	170	A	11
+3	128204951	C	97	T	90
+3	128205860	C	30	G	15
+3	128206618	C	36	A	7
+3	136056033	G	671	A	5
+...
+
+$ head P05.PI.tsv
+
+Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Contamination_p
+1	36937059	A	126	G	117	0.928571428571	1.0	1.17505373058e-32	Het	0.037037037037
+1	36937065	A	127	G	124	0.976377952756	1.0	4.08974298614e-36	Het	0.0119521912351
+2	25469502	T	116	C	95	0.818965517241	1.0	2.52236024344e-25	Het	0.0995260663507
+3	105439026	G	477	A	11	0.0230607966457	0.000202183057686	0.999797816942	Hom	0.0450819672131
+3	128199380	G	220	A	14	0.0636363636364	0.000486510687758	0.999513489312	Hom	0.119658119658
+3	128199662	G	170	A	11	0.0647058823529	0.000499670278562	0.999500329721	Hom	0.121546961326
+3	128204951	C	97	T	90	0.927835051546	1.0	1.32461743765e-32	Het	0.0374331550802
+3	128205860	C	30	G	15	0.5	0.999999989858	1.01421802114e-08	Het	0.333333333333
+3	128206618	C	36	A	7	0.194444444444	0.0470112000123	0.952988799988	Hom	0.325581395349
+...
+
+```  
+
+![workflow](https://github.com/liguowang/dcon/blob/master/img/P05_overall_contamination.png?raw=true)
+
 
 ## speed benchmark
 
