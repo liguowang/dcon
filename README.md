@@ -20,12 +20,13 @@ fraction of sequencing reads overlapping a genomic coordinate of a DNA variant s
 
 
 ### Prerequisites
-Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and these python packages (These packages will be automatically installed, please see instructions below). 
+Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and these python packages (Python packages below will be automatically installed, please see instructions below). 
 
 1. [**numpy**](http://www.numpy.org/)
 2. [**scipy**](https://www.scipy.org/)
 3. [**pysam**](https://pypi.python.org/pypi/pysam)
 4. [**scikit-learn**](https://pypi.python.org/pypi/scikit-learn)
+5. [**R**](https://www.r-project.org/)
 
 ### Installing
 
@@ -470,7 +471,8 @@ Dcon will generate 3 output files
   * column-8: Probability of homozygous SNP
   * column-9: Probability of heterozygous SNP
   * column-10: Label. "Hom" or "Het"
-  * column-11: Contamination percentage calculated from this individual SNP.
+  * column-11: Distance used to rank SNP. Contamination calculated from SNPs with smaller distance is more reliable.
+  * column-12: Contamination percentage calculated from this individual SNP.
 
 3. **prefix.overall_contamination.R**
   * R script to generate **prefix.overall_contamination.pdf**
@@ -498,16 +500,16 @@ $ head P05.SNP.tsv
 ```
 $ head P05.PI.tsv
 
-Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Contamination_p
-1	36937059	A	126	G	117	0.928571428571	1.0	1.17505373058e-32	Het	0.037037037037
-1	36937065	A	127	G	124	0.976377952756	1.0	4.08974298614e-36	Het	0.0119521912351
-2	25469502	T	116	C	95	0.818965517241	1.0	2.52236024344e-25	Het	0.0995260663507
-3	105439026	G	477	A	11	0.0230607966457	0.000202183057686	0.999797816942	Hom	0.0450819672131
-3	128199380	G	220	A	14	0.0636363636364	0.000486510687758	0.999513489312	Hom	0.119658119658
-3	128199662	G	170	A	11	0.0647058823529	0.000499670278562	0.999500329721	Hom	0.121546961326
-3	128204951	C	97	T	90	0.927835051546	1.0	1.32461743765e-32	Het	0.0374331550802
-3	128205860	C	30	G	15	0.5	0.999999989858	1.01421802114e-08	Het	0.333333333333
-3	128206618	C	36	A	7	0.194444444444	0.0470112000123	0.952988799988	Hom	0.325581395349
+Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Distance	Contamination_p
+1	36937059	A	126	G	117	0.928571428571	1.0	3.44113317953e-36	Het	0.182961958479	0.037037037037
+1	36937065	A	127	G	124	0.976377952756	1.0	4.90832923727e-40	Het	0.230768482664	0.0119521912351
+2	25469502	T	116	C	95	0.818965517241	1.0	4.80305096409e-28	Het	0.0733560471494	0.0995260663507
+3	105439026	G	477	A	11	0.0230607966457	0.000182230455487	0.999817769545	Hom	0.0171029321787	0.0450819672131
+3	128199380	G	220	A	14	0.0636363636364	0.000446156678585	0.999553843321	Hom	0.023472634812	0.119658119658
+3	128199662	G	170	A	11	0.0647058823529	0.000458638756417	0.999541361244	Hom	0.0245421535286	0.121546961326
+3	128204951	C	97	T	90	0.927835051546	1.0	3.93138767208e-36	Het	0.182225581454	0.0374331550802
+3	128205860	C	30	G	15	0.5	0.999999998861	1.13926739431e-09	Het	0.245609470092	0.333333333333
+3	128206618	C	36	A	7	0.194444444444	0.0565034056397	0.94349659436	Hom	0.15428071562	0.325581395349
 ...
 
 ```  

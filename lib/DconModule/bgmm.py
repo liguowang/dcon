@@ -47,8 +47,8 @@ def build_GMM(outfile, d, names, n, iter, tol, rnd, prob_cut):
 	
 	print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Writing to %s ..." % outfile
 	OUT_FILE = open(outfile,'w')
-	#header = ['Chrom', 'Ref_pos', 'Allele_1', 'Allele_1_count', 'Allele_2', 'Allele_2_count', 'Ratio', 'Prob_of_' + labels[0], 'Prob_of_' + labels[1], 'Label', 'Distance', 'Contamination_p']
-	header = ['Chrom', 'Ref_pos', 'Allele_1', 'Allele_1_count', 'Allele_2', 'Allele_2_count', 'Ratio', 'Prob_of_' + labels[0], 'Prob_of_' + labels[1], 'Label', 'Contamination_p']
+	header = ['Chrom', 'Ref_pos', 'Allele_1', 'Allele_1_count', 'Allele_2', 'Allele_2_count', 'Ratio', 'Prob_of_' + labels[0], 'Prob_of_' + labels[1], 'Label', 'Distance', 'Contamination_p']
+	#header = ['Chrom', 'Ref_pos', 'Allele_1', 'Allele_1_count', 'Allele_2', 'Allele_2_count', 'Ratio', 'Prob_of_' + labels[0], 'Prob_of_' + labels[1], 'Label', 'Contamination_p']
 	print >>OUT_FILE, '\t'.join(header)
 	
 	for nm,ratio, p in zip(names, d, probs):
@@ -78,7 +78,7 @@ def build_GMM(outfile, d, names, n, iter, tol, rnd, prob_cut):
 		if contamination > 0.5:
 			contamination = 1.0 - contamination
 			
-		#print >>OUT_FILE, nm + '\t' + str(ratio) + '\t' + '\t'.join([str(i) for i in p_list]) + '\t' + lab + '\t' + str(distance) + '\t' + str(contamination)
-		print >>OUT_FILE, nm + '\t' + str(ratio) + '\t' + '\t'.join([str(i) for i in p_list]) + '\t' + lab + '\t' + str(contamination)
+		print >>OUT_FILE, nm + '\t' + str(ratio) + '\t' + '\t'.join([str(i) for i in p_list]) + '\t' + lab + '\t' + str(distance) + '\t' + str(contamination)
+		#print >>OUT_FILE, nm + '\t' + str(ratio) + '\t' + '\t'.join([str(i) for i in p_list]) + '\t' + lab + '\t' + str(contamination)
 		
 	OUT_FILE.close()

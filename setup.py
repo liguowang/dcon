@@ -13,7 +13,7 @@ if sys.version_info[0] != 2 or sys.version_info[1] < 7:
 
 def main():
 	setup(  name = "Dcon",
-			version = "0.1.5",
+			version = "0.1.6",
 			py_modules = [ 'psyco_full' ],
 			packages = find_packages( 'lib' ),
 			package_dir = { '': 'lib' },

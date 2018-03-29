@@ -17,9 +17,10 @@ except ImportError:
 	
 from optparse import OptionParser
 from time import strftime
-import pysam
-import operator
+import subprocess
 import collections
+import operator
+import pysam
 from numpy import mean
 #from scipy.stats import binom_test
 from multiprocessing import Process, Manager, current_process
@@ -33,7 +34,7 @@ __contributor__="Liguo Wang"
 __copyright__ = "Copyright 2017-2018, Mayo Clinic"
 __credits__ = []
 __license__ = "GPL"
-__version__="0.1.5"
+__version__="0.1.6"
 __maintainer__ = "Liguo Wang"
 __email__ = "wang.liguo@mayo.edu; wangliguo78@gmail.com"
 __status__ = "4 - Beta"
@@ -127,10 +128,11 @@ def main():
 	parser.add_option("-q","--mapq",action="store",type="int",dest="min_mapq",default=30,help="Minimum mapping quality (http://maq.sourceforge.net/qual.shtml). Mapping quality is Phred-scaled probability of an alignment being wrong. default=%default")	
 	parser.add_option("-m","--seqq",action="store",type="int",dest="min_seqq",default=30,help="Minimum base phred quality (http://maq.sourceforge.net/qual.shtml). Base quality is Phread-scaled probability of a base calling being wrong. default=%default")	
 	parser.add_option("-c","--cvg",action="store",type="int",dest="min_coverage",default=30,help="Minimum number of reads supporting variant. default=%default")	
-	parser.add_option("-a","--allele",action="store",type="int",dest="min_allele_read_count",default=5,help="Minimum number of reads supporting one allele. default=%default")	
-	parser.add_option("-p","--processor",action="store",type="int",dest="processor_num",default=1,help="Number of processes used to call SNPs. default=%default")	
+	parser.add_option("-a","--allele",action="store",type="int",dest="min_allele_read_count",default=3,help="Minimum number of reads supporting one allele. default=%default")	
+	parser.add_option("-p","--processor",action="store",type="int",dest="processor_num",default=1,help="Number of processes. default=%default")	
 	parser.add_option("-s","--skipXY",action="store_true",dest="skip_XY",default=False,help="Skip SNPs on X and Y chromosomes. default=%default")	
-	parser.add_option("-y","--prob-cutoff",action="store",type="float",dest="probability_cut",default=0.5,help="Probability cutoff. default=%default")
+	parser.add_option("-y","--prob",action="store",type="float",dest="probability_cut",default=0.5,help="Probability cutoff. default=%default")
+	parser.add_option("-z","--zscore",action="store",type="float",dest="zscore_cut",default=3,help="Z-score (based on the median absolute deviation) cutoff. Data point with modified Z-score greater than this value will be considered as outlier. default=%default")
 	
 	(options,args)=parser.parse_args()
 	
@@ -165,6 +167,7 @@ def main():
 
 	print >>sys.stderr, "\n"		
 	printlog(["Running Dcon", 'v'+ __version__])
+	
 	
 	# targeted SNPs
 	all_regions = []
@@ -208,17 +211,47 @@ def main():
 	OUT_TAB1.close()	
 	
 	
-	printlog(['Filtering SNPs ...'])	
-	(snp_list, ratio_list) = filter_SNPs(infile = options.output_file + '.SNP.tsv')
+	printlog(['Read SNPs ...'])	
+	(snp_list, ratio_list) = read_SNPs(infile = options.output_file + '.SNP.tsv')
 	
-	printlog(['Estimating contamination for each variant. Saved to \"%s\"' % (options.output_file + '.SNP.PI.tsv')])	
+	if len(snp_list) == 0:
+		print >>sys.stderr, "No SNPs passed selection criteria. Try to lower '-c' to get more candidate SNPs"
+		print >>sys.stderr, "Aborted"
+		sys.exit(0)
+	elif len(snp_list) < 3:
+		print >>sys.stderr, "Too few SNPs passed selection criteria. Try to lower '-c' to get more candidate SNPs"
+		print >>sys.stderr, "Aborted"
+		sys.exit(0)
+	
+	printlog(['Estimating contamination for each variant. Saved to \"%s\"' % (options.output_file + '.PI.tsv')])	
 	build_GMM(outfile = options.output_file + '.PI.tsv', d = ratio_list, names=snp_list, n=2, iter=1000, tol=0.001, rnd=99, prob_cut = options.probability_cut)
 	
-	printlog(['Estimating overall contamination using maximum likelihood estimation (MLE) ...'])
-	pi = estimate_overall_pi(infile = options.output_file + '.PI.tsv')
-	#print pi
-	print "\n\tOverall contamination: %f"  % pi
-
+	
+	printlog(['Filter outlier SNPs ...'])	
+	(hom_snp_count, het_snp_count) = filter_outlier(options.output_file + '.PI.tsv', options.output_file + '.PI.filtered.tsv', zcut = options.zscore_cut)
+	
+		
+	cutoff = 20
+	if hom_snp_count >= cutoff: 
+		printlog(['Estimating overall contamination using maximum likelihood estimation (MLE) ...'])
+		pi = mle(infile = options.output_file + '.PI.filtered.tsv')
+		print "\n\tOverall contamination: %.3f"  % pi
+	
+	else:
+		printlog(['Estimating overall contamination using mode ...'])
+		pi = estimate_overall_pi(infile = options.output_file + '.PI.filtered.tsv', R_outfile = options.output_file + '.PI.density.R')
+		print "\n\tOverall contamination: %.3f"  % pi
+		
+	# generate gradient chart
+	if pi is not None:
+		printlog(['Generate R script  ...'])
+		gradient_chart(options.output_file + '.overall_contamination.R', options.output_file + '.overall_contamination.pdf', pi)
+	
+		try:
+			subprocess.call('Rscript ' + options.output_file + '.overall_contamination.R', shell=True)
+		except:
+			print >>sys.stderr, 'Cannot generate pdf file from ' + '"' +  options.output_file + '.overall_contamination.R' + '". ' 
+			pass
 
 if __name__=='__main__':
 	main()
