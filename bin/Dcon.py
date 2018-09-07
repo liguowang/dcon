@@ -222,7 +222,7 @@ def main():
 	
 	pi_hom = mle(infile = options.output_file + '.PI.filtered.tsv')
 	
-	print "\n\nOverall contamination level of %s is %.3f\n"  % (options.bam_file.replace('.bam',''), pi_hom)
+	print "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_hom)
 	
 if __name__=='__main__':
 	main()
