@@ -301,7 +301,7 @@ Dcon will generate 2 intermediate files
   * column-10: Label. "Hom" or "Het"
   * column-11: Distance used to rank SNP. Contamination calculated from SNPs with smaller distance is more reliable.
   * column-12: Contamination percentage calculated from this individual SNP.
-  * column-13: Contamination percentage calculated from this individual SNP.
+  * column-13: Indicator of whether this SNP has passed outlier filtering.
 
 **Example of prefix.SNP.tsv**
 ```
