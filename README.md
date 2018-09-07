@@ -37,9 +37,11 @@ Users have two ways to install Dcon:
     * Open a terminal and type command: ```pip install Dcon```
 
 2. Install Dcon from local directory
-    * Download Dcon directly from: [this link](https://github.com/liguowang/dcon/archive/0.1.5.zip)
-    * Go to the directory where **dcon-version.zip** was saved (for example, dcon-0.1.6.zip).
-    * Open a terminal and type command:`pip install dcon-0.1.6.zip`
+    * Download Dcon directly from: [this link](https://github.com/liguowang/dcon/releases)
+    * If you download dcon-0.1.8.tar.gz. Go to the directory where **dcon-0.1.8.tar.gz** was saved. Open a terminal and type command:`tar -zxf dcon-0.1.8.tar.gz`
+    * If you download dcon-0.1.8.zip. Go to the directory where **dcon-0.1.8.zip** was saved. Open a terminal and type command:`unzip dcon-0.1.8.zip`
+    * `cd dcon-0.1.8`
+    * `python setup.py install`	# Use python2.7
 
 ### General usage
 
