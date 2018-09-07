@@ -26,7 +26,6 @@ Dcon requires [python2.7](https://www.python.org/download/releases/2.7/) and the
 2. [**scipy**](https://www.scipy.org/)
 3. [**pysam**](https://pypi.python.org/pypi/pysam)
 4. [**scikit-learn**](https://pypi.python.org/pypi/scikit-learn)
-5. [**R**](https://www.r-project.org/)
 
 ### Installing
 
@@ -39,8 +38,8 @@ Users have two ways to install Dcon:
 
 2. Install Dcon from local directory
     * Download Dcon directly from: [this link](https://github.com/liguowang/dcon/archive/0.1.5.zip)
-    * Go to the directory where **dcon-version.zip** was saved (for example, dcon-0.1.5.zip).
-    * Open a terminal and type command:`pip install dcon-0.1.5.zip`
+    * Go to the directory where **dcon-version.zip** was saved (for example, dcon-0.1.6.zip).
+    * Open a terminal and type command:`pip install dcon-0.1.6.zip`
 
 ### General usage
 
@@ -55,10 +54,13 @@ User provides a [BAM](https://genome.ucsc.edu/FAQ/FAQformat.html#format5.1) file
 `tabix -h ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20100804/ALL.2of4intersection.20100804.genotypes.vcf.gz 2:39967768-39967768 > output.vcf`
 
 General usage instruction is listed below:   
+
 ```
 Usage: Dcon.py [options]
 
-Dcon: Estimate DNA Contamination from BAM file. 
+Dcon: Estimate DNA Contamination from BAM file.
+
+
 
 Options:
   --version             show program's version number and exit
@@ -68,36 +70,42 @@ Options:
                         and sorted using samTools
                         (http://samtools.sourceforge.net/).
   -v VCF_FILE, --variant=VCF_FILE
-                        VCF format file defining SNPs. VCF file can be a plain
-                        text, compressed (.gz, .z, .Z, .bz, .bz2 and .gzip2)
-                        or remote file (http://, https://, ftp://). Exclusive
-                        with '-r'.
+                        VCF format file containing *candiate* SNPs (Note: Not
+                        every SNP in this file has to be the real SNP in your
+                        BAM file. They could be SNPs extracted from
+                        dbSNP/1000Genome database, as long as they are located
+                        in the captured region. However, too many spurious
+                        SNPs will reduce the accuracy.). VCF file can be a
+                        plain text, compressed (.gz, .z, .Z, .bz, .bz2 and
+                        .gzip2) or remote file (http://, https://, ftp://).
+                        Exclusive with '-r'.
   -o OUTPUT_FILE, --output=OUTPUT_FILE
-                        Prefix of output file. Will generate three files:
-                        "prefix.SNP.tsv", "prefix.PI.tsv" "prefix.dcon.R".
-                        "prefix.dcon.pdf" will be generated if R exists.
-  -q MIN_MAPQ, --mapq=MIN_MAPQ
+                        Prefix of output files. Will generate two intermediate
+                        files: "prefix.SNP.tsv", "prefix.PI.filtered.tsv"
+  -m MIN_MAPQ, --mapq=MIN_MAPQ
                         Minimum mapping quality
                         (http://maq.sourceforge.net/qual.shtml). Mapping
                         quality is Phred-scaled probability of an alignment
                         being wrong. default=30
-  -m MIN_SEQQ, --seqq=MIN_SEQQ
+  -q MIN_SEQQ, --seqq=MIN_SEQQ
                         Minimum base phred quality
                         (http://maq.sourceforge.net/qual.shtml). Base quality
                         is Phread-scaled probability of a base calling being
                         wrong. default=30
   -c MIN_COVERAGE, --cvg=MIN_COVERAGE
                         Minimum number of reads supporting variant. default=30
-  -a MIN_ALLELE_READ_COUNT, --allele=MIN_ALLELE_READ_COUNT
-                        Minimum number of reads supporting one allele.
-                        default=5
-  -p PROCESSOR_NUM, --processor=PROCESSOR_NUM
-                        Number of processes used to call SNPs. default=1
-  -s, --skipXY          Skip SNPs on X and Y chromosomes. default=False
-  -y PROBABILITY_CUT, --prob-cutoff=PROBABILITY_CUT
-                        Probability cutoff. default=0.5
-
-
+  -n PROCESSOR_NUM, --processor=PROCESSOR_NUM
+                        Number of processes. default=1
+  -p PROBABILITY_CUT, --prob=PROBABILITY_CUT
+                        Cutoff of probability.  Probability is calcualted from
+                        Bayesian Gaussian Mixture model to decicde if a SNP is
+                        homozygous or heterozygous. default=0.5
+  -z ZSCORE_CUT, --zscore=ZSCORE_CUT
+                        Cutoff of Z-score. The modified Z-score is calculated
+                        from median absolute deviation. SNPs with Z-score
+                        greater than this cutoff will be considered as outlier
+                        and not used to estimate overall contamination level.
+                        default=2.5
 ```
 
 ## Create testing datasets
@@ -142,316 +150,136 @@ A total of 45 synthetic datasets were created by mixing the above 10 original da
 # Run Dcon on BAM file mixed at 5%  #
 #####################################
 
-$ Dcon.py -a 4 -b SRR6756025_SRR6756028_P05.bam -v gene83exon.snp.vcf.gz -o P05
+$ Dcon.py -v gene83exon.snp.vcf.gz -n 4 -b SRR6756025_SRR6756028_P05.bam -o P05
 
-@ 2018-03-19 21:52:08: Running Dcon v0.1.5
-@ 2018-03-19 21:52:08: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 21:52:08: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 21:52:09: Counting reads from "SRR6756025_SRR6756028_P05.bam"
-@ 2018-03-19 22:00:56: Writing variants to "P05.SNP.tsv"
-@ 2018-03-19 22:00:56: Filtering SNPs ...
-@ 2018-03-19 22:00:56: Estimating contamination for each variant. Saved to "P05.SNP.PI.tsv"
-@ 2018-03-19 22:00:56: Building Bayesian Gaussian Mixture model (BGMM) ...
+@ 2018-09-07 13:20:55: Running Dcon v0.1.8
+@ 2018-09-07 13:20:55: Read SNPs ...
+@ 2018-09-07 13:20:55: Estimating contamination for each variant. Saved to "P05.PI.tsv"
+@ 2018-09-07 13:20:55: Building Bayesian Gaussian Mixture model (BGMM) ...
 	Converge status: True
-	Iterations: 4
+	Iterations: 3
 
-@ 2018-03-19 22:00:56: Summerzie BGMM model ...
-	Means of homozygous component: 0.047493
-	Means of heterozygous component: 0.745989
-	Weight of homozygous component: 0.374071
-	Weight of heterozygous component: 0.625929
 
-@ 2018-03-19 22:00:56: Classify variants ...
+@ 2018-09-07 13:20:55: Summerzie BGMM model ...
+	Means of homozygous component: 0.040164
+	Means of heterozygous component: 0.745609
+	Weight of homozygous component: 0.431413
+	Weight of heterozygous component: 0.568587
 
-@ 2018-03-19 22:00:56: Writing to P05.PI.tsv ...
-@ 2018-03-19 22:00:56: Estimating overall contamination using maximum likelihood estimation (MLE) ...
 
-	Overall contamination: 0.056
+@ 2018-09-07 13:20:55: Classify variants ...
+
+@ 2018-09-07 13:20:55: Writing to P05.PI.tsv ...
+@ 2018-09-07 13:20:55: Filter outlier SNPs ...
+@ 2018-09-07 13:20:55: Estimating overall contamination using maximum likelihood estimation (MLE) ...
+@ 2018-09-07 13:20:55: Estimating contamination from homozygous SNPs ...
+
+
+Overall contamination level of SRR6756025_SRR6756028_P05 is 0.051
 
 
 #####################################
 # Run Dcon on BAM file mixed at 10% #
 #####################################
 
-$ Dcon.py -a 4 -b SRR6756025_SRR6756028_P10.bam -v gene83exon.snp.vcf.gz -o P10
+$ con.py -v gene83exon.snp.vcf.gz -n 4 -b SRR6756025_SRR6756028_P10.bam -o P10
 
-@ 2018-03-19 21:41:28: Running Dcon v0.1.5
-@ 2018-03-19 21:41:28: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 21:41:28: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 21:41:28: Counting reads from "SRR6756025_SRR6756028_P10.bam"
-@ 2018-03-19 21:50:19: Writing variants to "P10.SNP.tsv"
-@ 2018-03-19 21:50:19: Filtering SNPs ...
-@ 2018-03-19 21:50:19: Estimating contamination for each variant. Saved to "P10.SNP.PI.tsv"
-@ 2018-03-19 21:50:19: Building Bayesian Gaussian Mixture model (BGMM) ...
+@ 2018-09-07 13:23:08: Running Dcon v0.1.8
+@ 2018-09-07 13:23:08: Read SNPs ...
+@ 2018-09-07 13:23:08: Estimating contamination for each variant. Saved to "P10.PI.tsv"
+@ 2018-09-07 13:23:08: Building Bayesian Gaussian Mixture model (BGMM) ...
 	Converge status: True
-	Iterations: 10
+	Iterations: 8
 
-@ 2018-03-19 21:50:19: Summerzie BGMM model ...
-	Means of homozygous component: 0.078710
-	Means of heterozygous component: 0.703040
-	Weight of homozygous component: 0.388537
-	Weight of heterozygous component: 0.611463
 
-@ 2018-03-19 21:50:19: Classify variants ...
+@ 2018-09-07 13:23:08: Summerzie BGMM model ...
+	Means of homozygous component: 0.067398
+	Means of heterozygous component: 0.702934
+	Weight of homozygous component: 0.421991
+	Weight of heterozygous component: 0.578009
 
-@ 2018-03-19 21:50:19: Writing to P10.PI.tsv ...
-@ 2018-03-19 21:50:20: Estimating overall contamination using maximum likelihood estimation (MLE) ...
 
-	Overall contamination: 0.100
+@ 2018-09-07 13:23:08: Classify variants ...
+
+@ 2018-09-07 13:23:08: Writing to P10.PI.tsv ...
+@ 2018-09-07 13:23:08: Filter outlier SNPs ...
+@ 2018-09-07 13:23:08: Estimating overall contamination using maximum likelihood estimation (MLE) ...
+@ 2018-09-07 13:23:08: Estimating contamination from homozygous SNPs ...
+
+
+Overall contamination level of SRR6756025_SRR6756028_P10 is 0.094
 
 
 #####################################
 # Run Dcon on BAM file mixed at 15% #
 #####################################
 
-$ Dcon.py -a 4 -b SRR6756025_SRR6756028_P15.bam -v gene83exon.snp.vcf.gz -o P15
+$ Dcon.py -v gene83exon.snp.vcf.gz -n 4 -b SRR6756025_SRR6756028_P15.bam -o P15
 
-@ 2018-03-19 21:55:51: Running Dcon v0.1.5
-@ 2018-03-19 21:55:51: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 21:55:51: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 21:55:51: Counting reads from "SRR6756025_SRR6756028_P15.bam"
-@ 2018-03-19 22:05:02: Writing variants to "P15.SNP.tsv"
-@ 2018-03-19 22:05:02: Filtering SNPs ...
-@ 2018-03-19 22:05:02: Estimating contamination for each variant. Saved to "P15.SNP.PI.tsv"
-@ 2018-03-19 22:05:02: Building Bayesian Gaussian Mixture model (BGMM) ...
+@ 2018-09-07 13:23:51: Running Dcon v0.1.8
+@ 2018-09-07 13:23:51: Read SNPs ...
+@ 2018-09-07 13:23:51: Estimating contamination for each variant. Saved to "P15.PI.tsv"
+@ 2018-09-07 13:23:51: Building Bayesian Gaussian Mixture model (BGMM) ...
 	Converge status: True
-	Iterations: 17
+	Iterations: 19
 
-@ 2018-03-19 22:05:02: Summerzie BGMM model ...
-	Means of homozygous component: 0.121970
-	Means of heterozygous component: 0.687535
-	Weight of homozygous component: 0.387907
-	Weight of heterozygous component: 0.612093
 
-@ 2018-03-19 22:05:02: Classify variants ...
+@ 2018-09-07 13:23:51: Summerzie BGMM model ...
+	Means of homozygous component: 0.107931
+	Means of heterozygous component: 0.687673
+	Weight of homozygous component: 0.420852
+	Weight of heterozygous component: 0.579148
 
-@ 2018-03-19 22:05:02: Writing to P15.PI.tsv ...
-@ 2018-03-19 22:05:02: Estimating overall contamination using maximum likelihood estimation (MLE) ...
 
-	Overall contamination: 0.166
+@ 2018-09-07 13:23:51: Classify variants ...
+
+@ 2018-09-07 13:23:51: Writing to P15.PI.tsv ...
+@ 2018-09-07 13:23:51: Filter outlier SNPs ...
+@ 2018-09-07 13:23:51: Estimating overall contamination using maximum likelihood estimation (MLE) ...
+@ 2018-09-07 13:23:51: Estimating contamination from homozygous SNPs ...
+
+
+Overall contamination level of SRR6756025_SRR6756028_P15 is 0.145
 
 
 #####################################
 # Run Dcon on BAM file mixed at 20% #
 #####################################
 
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz -b SRR6756025_SRR6756028_P20.bam -o P20
+$ Dcon.py -v gene83exon.snp.vcf.gz -n 4 -b SRR6756025_SRR6756028_P20.bam -o P20
 
-@ 2018-03-19 22:04:26: Running Dcon v0.1.5
-@ 2018-03-19 22:04:26: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:04:26: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:04:26: Counting reads from "SRR6756025_SRR6756028_P20.bam"
-@ 2018-03-19 22:13:34: Writing variants to "P20.SNP.tsv"
-@ 2018-03-19 22:13:34: Filtering SNPs ...
-@ 2018-03-19 22:13:34: Estimating contamination for each variant. Saved to "P20.SNP.PI.tsv"
-@ 2018-03-19 22:13:34: Building Bayesian Gaussian Mixture model (BGMM) ...
+@ 2018-09-07 13:24:17: Running Dcon v0.1.8
+@ 2018-09-07 13:24:17: Read SNPs ...
+@ 2018-09-07 13:24:17: Estimating contamination for each variant. Saved to "P20.PI.tsv"
+@ 2018-09-07 13:24:17: Building Bayesian Gaussian Mixture model (BGMM) ...
 	Converge status: True
-	Iterations: 17
-
-@ 2018-03-19 22:13:34: Summerzie BGMM model ...
-	Means of homozygous component: 0.151335
-	Means of heterozygous component: 0.658398
-	Weight of homozygous component: 0.386997
-	Weight of heterozygous component: 0.613003
-
-@ 2018-03-19 22:13:34: Classify variants ...
-
-@ 2018-03-19 22:13:34: Writing to P20.PI.tsv ...
-@ 2018-03-19 22:13:34: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.207
+	Iterations: 21
 
 
-#####################################
-# Run Dcon on BAM file mixed at 25% #
-#####################################
-
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P25.bam -o  P25
-
-@ 2018-03-19 22:08:07: Running Dcon v0.1.5
-@ 2018-03-19 22:08:07: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:08:07: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:08:07: Counting reads from "SRR6756025_SRR6756028_P25.bam"
-@ 2018-03-19 22:17:12: Writing variants to "P25.SNP.tsv"
-@ 2018-03-19 22:17:12: Filtering SNPs ...
-@ 2018-03-19 22:17:12: Estimating contamination for each variant. Saved to "P25.SNP.PI.tsv"
-@ 2018-03-19 22:17:12: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 24
-
-@ 2018-03-19 22:17:12: Summerzie BGMM model ...
-	Means of homozygous component: 0.171741
-	Means of heterozygous component: 0.632972
-	Weight of homozygous component: 0.377965
-	Weight of heterozygous component: 0.622035
-
-@ 2018-03-19 22:17:12: Classify variants ...
-
-@ 2018-03-19 22:17:12: Writing to P25.PI.tsv ...
-@ 2018-03-19 22:17:12: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.232
+@ 2018-09-07 13:24:17: Summerzie BGMM model ...
+	Means of homozygous component: 0.137115
+	Means of heterozygous component: 0.657750
+	Weight of homozygous component: 0.417032
+	Weight of heterozygous component: 0.582968
 
 
-#####################################
-# Run Dcon on BAM file mixed at 30% #
-#####################################
+@ 2018-09-07 13:24:17: Classify variants ...
 
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P30.bam -o  P30
-
-@ 2018-03-19 22:34:46: Running Dcon v0.1.5
-@ 2018-03-19 22:34:46: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:34:46: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:34:47: Counting reads from "SRR6756025_SRR6756028_P30.bam"
-@ 2018-03-19 22:43:41: Writing variants to "P30.SNP.tsv"
-@ 2018-03-19 22:43:41: Filtering SNPs ...
-@ 2018-03-19 22:43:41: Estimating contamination for each variant. Saved to "P30.SNP.PI.tsv"
-@ 2018-03-19 22:43:41: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 35
-
-@ 2018-03-19 22:43:42: Summerzie BGMM model ...
-	Means of homozygous component: 0.205044
-	Means of heterozygous component: 0.618505
-	Weight of homozygous component: 0.397182
-	Weight of heterozygous component: 0.602818
-
-@ 2018-03-19 22:43:42: Classify variants ...
-
-@ 2018-03-19 22:43:42: Writing to P30.PI.tsv ...
-@ 2018-03-19 22:43:42: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.278
-	
-	
-#####################################
-# Run Dcon on BAM file mixed at 35% #
-#####################################
-
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P35.bam -o  P35
-
-@ 2018-03-19 22:22:12: Running Dcon v0.1.5
-@ 2018-03-19 22:22:12: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:22:12: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:22:12: Counting reads from "SRR6756025_SRR6756028_P35.bam"
-@ 2018-03-19 22:31:24: Writing variants to "P35.SNP.tsv"
-@ 2018-03-19 22:31:24: Filtering SNPs ...
-@ 2018-03-19 22:31:24: Estimating contamination for each variant. Saved to "P35.SNP.PI.tsv"
-@ 2018-03-19 22:31:24: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 95
-
-@ 2018-03-19 22:31:24: Summerzie BGMM model ...
-	Means of homozygous component: 0.242770
-	Means of heterozygous component: 0.629033
-	Weight of homozygous component: 0.463618
-	Weight of heterozygous component: 0.536382
-
-@ 2018-03-19 22:31:24: Classify variants ...
-
-@ 2018-03-19 22:31:24: Writing to P35.PI.tsv ...
-@ 2018-03-19 22:31:24: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.354
+@ 2018-09-07 13:24:17: Writing to P20.PI.tsv ...
+@ 2018-09-07 13:24:17: Filter outlier SNPs ...
+@ 2018-09-07 13:24:17: Estimating overall contamination using maximum likelihood estimation (MLE) ...
+@ 2018-09-07 13:24:17: Estimating contamination from homozygous SNPs ...
 
 
-#####################################
-# Run Dcon on BAM file mixed at 40% #
-#####################################
-
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P40.bam -o  P40
-
-@ 2018-03-19 22:22:18: Running Dcon v0.1.5
-@ 2018-03-19 22:22:18: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:22:18: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:22:18: Counting reads from "SRR6756025_SRR6756028_P40.bam"
-@ 2018-03-19 22:31:29: Writing variants to "P40.SNP.tsv"
-@ 2018-03-19 22:31:29: Filtering SNPs ...
-@ 2018-03-19 22:31:29: Estimating contamination for each variant. Saved to "P40.SNP.PI.tsv"
-@ 2018-03-19 22:31:29: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 49
-
-@ 2018-03-19 22:31:29: Summerzie BGMM model ...
-	Means of homozygous component: 0.286721
-	Means of heterozygous component: 0.707425
-	Weight of homozygous component: 0.373812
-	Weight of heterozygous component: 0.626188
-
-@ 2018-03-19 22:31:29: Classify variants ...
-
-@ 2018-03-19 22:31:29: Writing to P40.PI.tsv ...
-@ 2018-03-19 22:31:29: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.418
+Overall contamination level of SRR6756025_SRR6756028_P20 is 0.198
 
 
-#####################################
-# Run Dcon on BAM file mixed at 45% #
-#####################################
-
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P45.bam -o  P45
-
-@ 2018-03-19 22:35:03: Running Dcon v0.1.5
-@ 2018-03-19 22:35:03: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:35:04: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:35:04: Counting reads from "SRR6756025_SRR6756028_P45.bam"
-@ 2018-03-19 22:43:58: Writing variants to "P45.SNP.tsv"
-@ 2018-03-19 22:43:58: Filtering SNPs ...
-@ 2018-03-19 22:43:58: Estimating contamination for each variant. Saved to "P45.SNP.PI.tsv"
-@ 2018-03-19 22:43:58: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 22
-
-@ 2018-03-19 22:43:58: Summerzie BGMM model ...
-	Means of homozygous component: 0.303108
-	Means of heterozygous component: 0.766116
-	Weight of homozygous component: 0.287331
-	Weight of heterozygous component: 0.712669
-
-@ 2018-03-19 22:43:58: Classify variants ...
-
-@ 2018-03-19 22:43:58: Writing to P45.PI.tsv ...
-@ 2018-03-19 22:43:58: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.435
-
-
-#####################################
-# Run Dcon on BAM file mixed at 50% #
-#####################################
-
-$ Dcon.py -a 4 -v gene83exon.snp.vcf.gz  -b SRR6756025_SRR6756028_P50.bam -o  P50
-
-@ 2018-03-19 22:50:13: Running Dcon v0.1.5
-@ 2018-03-19 22:50:13: Reading VCF file "gene83exon.snp.vcf.gz" ...
-@ 2018-03-19 22:50:13: Using 9256 SNPs in file "gene83exon.snp.vcf.gz"
-@ 2018-03-19 22:50:14: Counting reads from "SRR6756025_SRR6756028_P50.bam"
-@ 2018-03-19 22:59:12: Writing variants to "P50.SNP.tsv"
-@ 2018-03-19 22:59:12: Filtering SNPs ...
-@ 2018-03-19 22:59:12: Estimating contamination for each variant. Saved to "P50.SNP.PI.tsv"
-@ 2018-03-19 22:59:12: Building Bayesian Gaussian Mixture model (BGMM) ...
-	Converge status: True
-	Iterations: 11
-
-@ 2018-03-19 22:59:12: Summerzie BGMM model ...
-	Means of homozygous component: 0.292286
-	Means of heterozygous component: 0.761119
-	Weight of homozygous component: 0.299293
-	Weight of heterozygous component: 0.700707
-
-@ 2018-03-19 22:59:12: Classify variants ...
-
-@ 2018-03-19 22:59:12: Writing to P50.PI.tsv ...
-@ 2018-03-19 22:59:12: Estimating overall contamination using maximum likelihood estimation (MLE) ...
-
-	Overall contamination: 0.428
 				
 ```
 
 ## Output files
 
-Dcon will generate 3 output files
+Dcon will generate 2 intermediate files
 1. **prefix.SNP.tsv**
   * column-1: Chromosome ID
   * column-2: SNP Position 
@@ -460,7 +288,7 @@ Dcon will generate 3 output files
   * column-5: Allele 2
   * column-6: Number of reads supporting Allele 1
 
-2. **prefix.PI.tsv**  
+2. **prefix.PI.filtered.tsv**  
   * column-1: Chromosome ID
   * column-2: SNP Position 
   * column-3: Allele 1
@@ -473,11 +301,7 @@ Dcon will generate 3 output files
   * column-10: Label. "Hom" or "Het"
   * column-11: Distance used to rank SNP. Contamination calculated from SNPs with smaller distance is more reliable.
   * column-12: Contamination percentage calculated from this individual SNP.
-
-3. **prefix.overall_contamination.R**
-  * R script to generate **prefix.overall_contamination.pdf**
-  * Contamination percentage (0% - 50%) is indicated by the red arrow.
-  
+  * column-13: Contamination percentage calculated from this individual SNP.
 
 **Example of prefix.SNP.tsv**
 ```
@@ -495,27 +319,23 @@ $ head P05.SNP.tsv
 3	136056033	G	671	A	5
 ...
 ```
-**Example of prefix.PI.tsv**  
+**Example of prefix.PI.filtered.tsv**  
 
 ```
 $ head P05.PI.tsv
 
-Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Distance	Contamination_p
-1	36937059	A	126	G	117	0.928571428571	1.0	3.44113317953e-36	Het	0.182961958479	0.037037037037
-1	36937065	A	127	G	124	0.976377952756	1.0	4.90832923727e-40	Het	0.230768482664	0.0119521912351
-2	25469502	T	116	C	95	0.818965517241	1.0	4.80305096409e-28	Het	0.0733560471494	0.0995260663507
-3	105439026	G	477	A	11	0.0230607966457	0.000182230455487	0.999817769545	Hom	0.0171029321787	0.0450819672131
-3	128199380	G	220	A	14	0.0636363636364	0.000446156678585	0.999553843321	Hom	0.023472634812	0.119658119658
-3	128199662	G	170	A	11	0.0647058823529	0.000458638756417	0.999541361244	Hom	0.0245421535286	0.121546961326
-3	128204951	C	97	T	90	0.927835051546	1.0	3.93138767208e-36	Het	0.182225581454	0.0374331550802
-3	128205860	C	30	G	15	0.5	0.999999998861	1.13926739431e-09	Het	0.245609470092	0.333333333333
-3	128206618	C	36	A	7	0.194444444444	0.0565034056397	0.94349659436	Hom	0.15428071562	0.325581395349
-...
+Chrom	Ref_pos	Allele_1	Allele_1_count	Allele_2	Allele_2_count	Ratio	Prob_of_Het	Prob_of_Hom	Label	Distance	Contamination_p	Outlier
+3	105439026	G	477	A	11	0.0230607966457	0.000182230455487	0.999817769545	Hom	0.0171029321787	0.0450819672131	Pass
+3	128199380	G	220	A	14	0.0636363636364	0.000446156678585	0.999553843321	Hom	0.023472634812	0.119658119658	Pass
+3	128199662	G	170	A	11	0.0647058823529	0.000458638756417	0.999541361244	Hom	0.0245421535286	0.121546961326	Pass
+3	128206618	C	36	A	7	0.194444444444	0.0565034056397	0.94349659436	Hom	0.15428071562	0.325581395349	Fail
+3	136056184	A	638	G	11	0.0172413793103	0.000164195828332	0.999835804172	Hom	0.022922349514	0.0338983050847	Pass
+3	136088038	G	549	A	9	0.016393442623	0.000161803440411	0.99983819656	Hom	0.0237702862014	0.0322580645161	Pass
+3	168801495	C	576	A	12	0.0208333333333	0.000174978971172	0.999825021029	Hom	0.019330395491	0.0408163265306	Pass
+3	168801916	C	349	T	4	0.0114613180516	0.000148943307201	0.999851056693	Hom	0.0287024107728	0.0226628895184	Pass
+3	168802737	G	278	A	3	0.0107913669065	0.000147326774526	0.999852673225	Hom	0.0293723619179	0.0213523131673	Pass
 
 ```  
-**Example of prefix.overall_contamination.pdf**  
-![workflow](https://github.com/liguowang/dcon/blob/master/img/P05_overall_contamination.png?raw=true)
-Contamination percentage (0% - 50%) is indicated by the red arrow.
 
 ## speed benchmark
 
