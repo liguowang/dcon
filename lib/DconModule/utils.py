@@ -130,7 +130,7 @@ def outlier(point_keys, points, thresh):
 
 def filter_outlier(infile, outfile, zcut):
 	'''
-	filter out heterozygous and outlier SNPs. 
+	filter out outlier SNPs. 
 	'''
 	hom_snp_wise_pi = {}
 	het_snp_wise_pi = {}
@@ -139,7 +139,7 @@ def filter_outlier(infile, outfile, zcut):
 		l = l.strip()
 		f = l.split()
 		k = f[0] + '_' + f[1]
-				
+		
 		if l.startswith('Chrom'):
 			continue
 		if f[9] == 'Hom':
@@ -176,15 +176,18 @@ def filter_outlier(infile, outfile, zcut):
 	FIN.close()
 	FOUT.close()
 	
-	#return (len(kept))			
+	return (len(hom_kept), len(het_kept))			
 	
 
 
 #=======	
 			
-def mle(infile):
+def mle(infile, mode):
 	'''
 	Estimate the overall contamination percentage using maximum likelihood estimation (MLE)
+	mode: must be one of:
+		* "hom": only use homozygous SNPs.
+		* "both": use both homozygous and heterozygous SNPs.
 	 '''
 	candidate_PIs = [i/1000.0 for i in range(0,501)]
 	snp_hom = []
@@ -204,23 +207,43 @@ def mle(infile):
 			snp_het.append([allele_1_count + allele_2_count, allele_2_count, "Het"]) #n,k
 		else:
 			continue
-			
-	print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Estimating contamination from homozygous SNPs ..." 
-	prob = -float("inf")
-	pi_of_max_prob_hom = 0.0
-	for pi in candidate_PIs:
-		p2 = pi/2.0
-			
-		joint_prob = 0
-		for n,k,t in snp_hom:			
-			pmf_2 = binom.logpmf(k,n,p2)
-			joint_prob += pmf_2
-							
-		if joint_prob > prob:
-			prob = joint_prob
-			pi_of_max_prob_hom = pi
-	return pi_of_max_prob_hom
 	
+	if mode == 'hom':	
+		#print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Estimating contamination from homozygous SNPs ..." 
+		prob = -float("inf")
+		pi_of_max_prob_hom = 0.0
+		for pi in candidate_PIs:
+			p2 = pi/2.0
+			
+			joint_prob = 0
+			for n,k,t in snp_hom:			
+				pmf_2 = binom.logpmf(k,n,p2)
+				joint_prob += pmf_2
+							
+			if joint_prob > prob:
+				prob = joint_prob
+				pi_of_max_prob_hom = pi
+		return pi_of_max_prob_hom
+	elif mode == 'both':
+		#print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Estimating contamination from all SNPs ..." 
+		prob = -float("inf")
+		pi_of_max_prob_both = 0.0
+		for pi in candidate_PIs:
+			joint_prob = 0
+			for n,k,t in (snp_hom + snp_het):
+				if t == 'Hom':
+					p2 = pi/2.0
+					pmf_2 = binom.logpmf(k,n,p2)
+					joint_prob += pmf_2
+				elif t == 'Het':
+					p = (1.0 - pi)/2.0
+					joint_prob += binom.logpmf(k,n,p)
+			if joint_prob > prob:
+				prob = joint_prob
+				pi_of_max_prob_both = pi
+	
+		return pi_of_max_prob_both
+
 	#print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Estimating contamination from heterozygous SNPs ..." 
 	#prob = -float("inf")
 	#pi_of_max_prob_het = 0.0
@@ -233,24 +256,6 @@ def mle(infile):
 	#		prob = joint_prob
 	#		pi_of_max_prob_het = pi
 	#
-	#print >>sys.stderr, '@ ' + strftime("%Y-%m-%d %H:%M:%S") + ": Estimating contamination from all SNPs ..." 
-	#prob = -float("inf")
-	#pi_of_max_prob_both = 0.0
-	#for pi in candidate_PIs:
-	#	joint_prob = 0
-	#	for n,k,t in (snp_hom + snp_het):
-	#		if t == 'Hom':
-	#			p2 = pi/2.0
-	#			pmf_2 = binom.logpmf(k,n,p2)
-	#			joint_prob += pmf_2
-	#		elif t == 'Het':
-	#			p = (1.0 - pi)/2.0
-	#			joint_prob += binom.logpmf(k,n,p)
-	#	if joint_prob > prob:
-	#		prob = joint_prob
-	#		pi_of_max_prob_both = pi
-	#
-	#return (pi_of_max_prob_hom, pi_of_max_prob_het, pi_of_max_prob_both)
 			
 def gradient_chart(R_outfile, pdf_outfile, arrow_pos):	
 	'''

@@ -200,7 +200,7 @@ def main():
 	
 	printlog(['Read SNPs ...'])	
 	(snp_list, ratio_list) = read_SNPs(infile = options.output_file + '.SNP.tsv',min_mvaf = 0.01, min_cvg = options.min_coverage, min_alleleRC=3)
-	
+	printlog(['A total of %d SNPs were selected to build mixture model' % len(snp_list)])
 	if len(snp_list) <= 3:
 		print >>sys.stderr, "No SNPs passed selection criteria. Try to increase '-z' to get more candidate SNPs"
 		print >>sys.stderr, "Aborted"
@@ -211,18 +211,33 @@ def main():
 	
 	printlog(['Filter outlier SNPs ...'])	
 		
-	filter_outlier(options.output_file + '.PI.tsv', options.output_file + '.PI.filtered.tsv', zcut = options.zscore_cut)
+	(total_hom, total_het) = filter_outlier(options.output_file + '.PI.tsv', options.output_file + '.PI.filtered.tsv', zcut = options.zscore_cut)
 	
 	if os.path.exists(options.output_file + '.PI.filtered.tsv') and os.stat(options.output_file + '.PI.filtered.tsv').st_size > 0:
 		printlog(['Delete \"%s\"' % (options.output_file + '.PI.tsv')])
 		os.remove(options.output_file + '.PI.tsv')
+	
+	OUT = open(options.output_file + '.overall_contamination.txt','w')
 		
-	
 	printlog(['Estimating overall contamination using maximum likelihood estimation (MLE) ...'])
+	if total_hom >= 10:
+		printlog(['Estimating overall contamination using homozyous SNPs only ...'])
+		pi_final = mle(infile = options.output_file + '.PI.filtered.tsv', mode = 'hom')
+		print >>sys.stderr, "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_final)
+		print >>OUT, "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_final)
+
+	elif (total_hom < 10) and (total_hom + total_het) >= 10 :
+		printlog(['Estimating overall contamination using both homozyous and heterozygous SNPs only  (less accurate) ...'])
+		pi_final = mle(infile = options.output_file + '.PI.filtered.tsv', mode = 'both')
+		print >>sys.stderr, "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_final)
+		print >>OUT, "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_final)
+
+	else:
+		printlog(['Too few SNPs. Cannot estiamte contamination ...'])
+		print >>sys.stderr, "Overall contamination level of %s is %s"  % (options.bam_file.replace('.bam',''), 'unknown')
+		print >>OUT, "Overall contamination level of %s is %s"  % (options.bam_file.replace('.bam',''), 'unknown')
 	
-	pi_hom = mle(infile = options.output_file + '.PI.filtered.tsv')
-	
-	print "Overall contamination level of %s is %.3f"  % (options.bam_file.replace('.bam',''), pi_hom)
+	OUT.close()
 	
 if __name__=='__main__':
 	main()
